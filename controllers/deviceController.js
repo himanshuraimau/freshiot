@@ -1,4 +1,5 @@
 import { Device } from '../models/deviceModel.js';
+import { SensorData } from '../models/sensorData.js';
 import crypto from 'crypto';
 
 const generatePassword = () => {
@@ -44,4 +45,32 @@ export const handleDeviceData = async (req, res) => {
       message: error.message
     });
   }
+};
+
+export const getDeviceHistory = async (req, res) => {
+    try {
+        const { deviceName, startDate, endDate } = req.query;
+        
+        const query = { deviceName };
+        if (startDate && endDate) {
+            query.timestamp = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+        const history = await SensorData.find(query)
+            .sort({ timestamp: -1 })
+            .limit(1000);
+
+        res.status(200).json({
+            success: true,
+            data: history
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };

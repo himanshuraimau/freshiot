@@ -1,5 +1,6 @@
 import aws from 'aws-iot-device-sdk';
 import { Device } from './models/deviceModel.js';
+import { SensorData } from './models/sensorData.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -46,6 +47,7 @@ const updateDeviceData = async (data) => {
     try {
         const { deviceName, temperature, humidity, latitude, longitude } = data;
         
+        // Update current device state
         await Device.findOneAndUpdate(
             { deviceName },
             {
@@ -56,6 +58,14 @@ const updateDeviceData = async (data) => {
             },
             { upsert: true }
         );
+
+        // Save historical data
+        await SensorData.create({
+            deviceName,
+            temperature,
+            humidity,
+            location: { latitude, longitude }
+        });
     } catch (error) {
         console.error('Error updating device data:', error);
     }
