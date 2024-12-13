@@ -2,9 +2,11 @@
   "name": "freshiot",
   "version": "1.0.0",
   "description": "connects with the aws core and the database",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "author": "monk_builders",
   "license": "ISC",

@@ -10,16 +10,21 @@ const deviceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  temperature: Number,
-  humidity: Number,
-  location: {
-    latitude: Number,
-    longitude: Number
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
   },
-  lastUpdated: {
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  lastActive: {
     type: Date,
     default: Date.now
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
 export const Device = mongoose.model('Device', deviceSchema);

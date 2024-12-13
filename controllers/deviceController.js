@@ -1,43 +1,40 @@
 import { Device } from '../models/deviceModel.js';
-import { SensorData } from '../models/sensorData.js';
+import { DeviceData } from '../models/deviceDataModel.js';
 import crypto from 'crypto';
-
-const generatePassword = () => {
-  return crypto.randomBytes(8).toString('hex');
-};
 
 export const handleDeviceData = async (req, res) => {
   try {
     const { deviceName, temperature, humidity, latitude, longitude } = req.body;
 
+    // Find or update device
     let device = await Device.findOne({ deviceName });
-    let password;
-
     if (!device) {
-      // New device registration
-      password = generatePassword();
       device = await Device.create({
         deviceName,
-        password,
-        temperature,
-        humidity,
-        location: { latitude, longitude }
+        password: crypto.randomBytes(8).toString('hex'),
+        status: 'active'
       });
-    } else {
-      // Update existing device
-      device.temperature = temperature;
-      device.humidity = humidity;
-      device.location = { latitude, longitude };
-      device.lastUpdated = new Date();
-      await device.save();
     }
+
+    // Update device's last active timestamp
+    device.lastActive = new Date();
+    await device.save();
+
+    // Create new device data entry
+    const deviceData = await DeviceData.create({
+      device: device._id,
+      temperature,
+      humidity,
+      location: { latitude, longitude }
+    });
 
     res.status(200).json({
       success: true,
       device: {
-        deviceName: device.deviceName,
-        password: password // Only returned for new devices
-      }
+        deviceId: device._id,
+        deviceName: device.deviceName
+      },
+      data: deviceData
     });
   } catch (error) {
     res.status(500).json({
@@ -48,29 +45,30 @@ export const handleDeviceData = async (req, res) => {
 };
 
 export const getDeviceHistory = async (req, res) => {
-    try {
-        const { deviceName, startDate, endDate } = req.query;
-        
-        const query = { deviceName };
-        if (startDate && endDate) {
-            query.timestamp = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
-        }
-
-        const history = await SensorData.find(query)
-            .sort({ timestamp: -1 })
-            .limit(1000);
-
-        res.status(200).json({
-            success: true,
-            data: history
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+  try {
+    const { deviceId, startDate, endDate } = req.query;
+    
+    const query = { device: deviceId };
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
     }
+
+    const history = await DeviceData.find(query)
+      .sort({ createdAt: -1 })
+      .populate('device', 'deviceName status')
+      .limit(1000);
+
+    res.status(200).json({
+      success: true,
+      data: history
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
