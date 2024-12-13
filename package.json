@@ -1,0 +1,11 @@
+{
+  "name": "freshiot",
+  "version": "1.0.0",
+  "description": "connects with the aws core and the database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "monk_builders",
+  "license": "ISC"
+}
