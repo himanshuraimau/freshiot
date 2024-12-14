@@ -20,7 +20,6 @@ app.get('/health', (req, res) => {
 // Device routes
 app.post('/api/device/data', authenticateDevice, handleDeviceData);
 app.get('/api/device/history', authenticateDevice, getDeviceHistory);
-app.get('/api/device/latest', authenticateDevice, getLatestData);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
