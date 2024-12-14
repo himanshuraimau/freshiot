@@ -3,7 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { handleError } from './utils/errors.js';
 import { authenticateDevice } from './middleware/auth.js';
-import { handleDeviceData, getDeviceHistory } from './controllers/deviceController.js';
+import { handleDeviceData, getDeviceHistory, getLatestData } from './controllers/deviceController.js';
 
 const app = express();
 
@@ -20,6 +20,7 @@ app.get('/health', (req, res) => {
 // Device routes
 app.post('/api/device/data', authenticateDevice, handleDeviceData);
 app.get('/api/device/history', authenticateDevice, getDeviceHistory);
+app.get('/api/device/latest', authenticateDevice, getLatestData);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

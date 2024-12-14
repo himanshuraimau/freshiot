@@ -15,14 +15,11 @@ const device = aws.device({
     host: process.env.AWS_IOT_ENDPOINT
 });
 
-// Add these helper functions at the top
 const generateRandomTemp = () => {
-    // Generate temperature between 18 and 22 degrees
     return (20 + (Math.random() * 4 - 2)).toFixed(1);
 };
 
 const generateRandomHumidity = () => {
-    // Generate humidity between 94 and 98 percent
     return (96 + (Math.random() * 4 - 2)).toFixed(1);
 };
 
@@ -38,11 +35,16 @@ const saveDeviceData = async (payload) => {
         // Create new device data entry with hardcoded device ID
         const deviceData = await DeviceData.create({
             device: HARDCODED_DEVICE._id,
-            temperature: generateRandomTemp(),
-            humidity: generateRandomHumidity(),
+            // Use original values if they exist and are non-zero, otherwise use random values
+            temperature: payload.temperature && payload.temperature !== 0 
+                ? payload.temperature 
+                : generateRandomTemp(),
+            humidity: payload.humidity && payload.humidity !== 0 
+                ? payload.humidity 
+                : generateRandomHumidity(),
             location: {
-                latitude: payload.latitude,
-                longitude: payload.longitude
+                latitude: payload.latitude || 13.339168,  // Default latitude for Delhi
+                longitude: payload.longitude || 7.113998  // Default longitude for Delhi
             }
         });
 
@@ -56,7 +58,8 @@ const saveDeviceData = async (payload) => {
             deviceName: HARDCODED_DEVICE.deviceName,
             deviceDataId: deviceData._id,
             temperature: deviceData.temperature,
-            humidity: deviceData.humidity
+            humidity: deviceData.humidity,
+            location: deviceData.location
         });
     } catch (error) {
         console.error('❌ Database save error:', error);
