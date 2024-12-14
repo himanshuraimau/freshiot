@@ -26,34 +26,35 @@ const generateRandomHumidity = () => {
     return (96 + (Math.random() * 4 - 2)).toFixed(1);
 };
 
+// Hardcoded device information
+const HARDCODED_DEVICE = {
+    _id: "675c7974f8397f0e0aa546b3",
+    deviceName: "Device001",
+    user: "675beb4a5b3142b487500575"
+};
+
 const saveDeviceData = async (payload) => {
     try {
-        // Save to Device collection
-        const deviceDoc = await Device.findOneAndUpdate(
-            { deviceName: payload.device_id },
-            {
-                deviceName: payload.device_id,
-                password: 'password123',
-                status: 'active',  // Added status field
-                lastActive: new Date()
-            },
-            { upsert: true, new: true }
-        );
-
-        // Save to DeviceData collection with simulated values
+        // Create new device data entry with hardcoded device ID
         const deviceData = await DeviceData.create({
-            device: deviceDoc._id,  // Reference the device by _id
-            temperature: generateRandomTemp(), // Use simulated temperature
-            humidity: generateRandomHumidity(), // Use simulated humidity
+            device: HARDCODED_DEVICE._id,
+            temperature: generateRandomTemp(),
+            humidity: generateRandomHumidity(),
             location: {
                 latitude: payload.latitude,
                 longitude: payload.longitude
             }
         });
 
+        // Update lastActive timestamp for the hardcoded device
+        await Device.findByIdAndUpdate(HARDCODED_DEVICE._id, {
+            lastActive: new Date()
+        });
+
         console.log('✅ Data saved to database:', {
-            deviceId: deviceDoc._id,
-            deviceDataId: deviceData._id,  // Changed from sensorDataId
+            deviceId: HARDCODED_DEVICE._id,
+            deviceName: HARDCODED_DEVICE.deviceName,
+            deviceDataId: deviceData._id,
             temperature: deviceData.temperature,
             humidity: deviceData.humidity
         });

@@ -1,30 +1,30 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const deviceSchema = new mongoose.Schema({
-  deviceName: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['active', 'inactive'],
-    default: 'active'
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  lastActive: {
-    type: Date,
-    default: Date.now
-  }
-}, {
-  timestamps: true
-});
+    deviceName: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'maintenance'],
+        default: 'active'
+    },
+    lastActive: {
+        type: Date,
+        default: Date.now
+    }
+}, { timestamps: true });
 
-export const Device = mongoose.model('Device', deviceSchema);
+const Device = mongoose.model('Device', deviceSchema);
+
+export {Device};

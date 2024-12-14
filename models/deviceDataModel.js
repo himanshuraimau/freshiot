@@ -1,31 +1,22 @@
 import mongoose from 'mongoose';
 
 const deviceDataSchema = new mongoose.Schema({
-  device: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Device',
-    required: true
-  },
-  temperature: {
-    type: Number,
-    required: true
-  },
-  humidity: {
-    type: Number,
-    required: true
-  },
-  location: {
-    latitude: {
-      type: Number,
-      required: true
+    device: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Device',
+        required: true
     },
-    longitude: {
-      type: Number,
-      required: true
+    temperature: Number,
+    humidity: Number,
+    location: {
+        latitude: Number,
+        longitude: Number
     }
-  }
-}, {
-  timestamps: true
-});
+}, { timestamps: true });
 
-export const DeviceData = mongoose.model('DeviceData', deviceDataSchema);
+// Add index for faster queries
+deviceDataSchema.index({ device: 1, createdAt: -1 });
+
+const DeviceData = mongoose.model('DeviceData', deviceDataSchema);
+
+export { DeviceData };
